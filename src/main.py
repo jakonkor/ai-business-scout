@@ -21,6 +21,7 @@ from src.agents import (
 )
 from src.models import ScoutReport
 from src.utils.config import config, Config
+from src.utils.slack_notifier import SlackNotifier
 
 console = Console()
 
@@ -33,6 +34,7 @@ class BusinessScout:
         self.generator = IdeaGeneratorAgent()
         self.analyst = BusinessAnalystAgent()
         self.validator = MarketValidatorAgent()
+        self.slack = SlackNotifier()
     
     async def run_full_pipeline(
         self,
@@ -59,24 +61,32 @@ class BusinessScout:
             border_style="cyan"
         ))
         
+        self.slack.notify_pipeline_start()
+        
         # Phase 1: Web Scanning
         console.print("\n[bold]Phase 1: Web Scanning[/bold]", style="yellow")
+        self.slack.notify_phase(1, "Web Scanning", "Scanning Twitter, Reddit, News & Google Trends…")
         trends = await self.scanner.scan_all_sources()
         
         if not trends:
-            console.print("❌ No trends found. Please configure API keys in .env", style="red")
+            msg = "No trends found. Please configure API keys in .env"
+            console.print(f"❌ {msg}", style="red")
+            self.slack.notify_error(msg)
             return None
         
         # Phase 2: Idea Generation
         console.print("\n[bold]Phase 2: Idea Generation[/bold]", style="yellow")
+        self.slack.notify_phase(2, "Idea Generation", f"Generating ideas from {len(trends)} trends…")
         ideas = await self.generator.generate_ideas(trends, max_ideas=max_ideas)
         
         # Phase 3: Business Analysis
         console.print("\n[bold]Phase 3: Business Analysis[/bold]", style="yellow")
+        self.slack.notify_phase(3, "Business Analysis", f"Performing SWOT & market sizing on {len(ideas)} ideas…")
         analyses = await self.analyst.analyze_ideas(ideas)
         
         # Phase 4: Market Validation
         console.print("\n[bold]Phase 4: Market Validation[/bold]", style="yellow")
+        self.slack.notify_phase(4, "Market Validation", f"Running ad-campaign simulations for {len(ideas)} ideas…")
         validations = await self.validator.validate_ideas(
             ideas=ideas,
             analyses=analyses,
@@ -93,6 +103,9 @@ class BusinessScout:
         # Save Report
         if save_report:
             self._save_report(report)
+        
+        # Post full report to Slack
+        self.slack.notify_report(report)
         
         return report
     

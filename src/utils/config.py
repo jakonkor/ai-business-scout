@@ -55,6 +55,9 @@ class Config:
     # News API
     NEWS_API_KEY: Optional[str] = os.getenv("NEWS_API_KEY")
     
+    # Slack integration
+    SLACK_WEBHOOK_URL: Optional[str] = os.getenv("SLACK_WEBHOOK_URL")
+    
     # Database
     DATABASE_URL: str = os.getenv("DATABASE_URL", f"sqlite:///{DATA_DIR}/business_scout.db")
     
@@ -62,6 +65,10 @@ class Config:
     LOG_LEVEL: str = os.getenv("LOG_LEVEL", "INFO")
     SCAN_INTERVAL_HOURS: int = int(os.getenv("SCAN_INTERVAL_HOURS", "24"))
     MAX_IDEAS_PER_RUN: int = int(os.getenv("MAX_IDEAS_PER_RUN", "10"))
+    
+    # Scheduler settings (used by scripts/setup_cron.sh)
+    # Cron expression for the daily run, e.g. "0 8 * * *" = every day at 08:00
+    SCHEDULE_CRON: str = os.getenv("SCHEDULE_CRON", "0 8 * * *")
     
     @classmethod
     def validate(cls) -> bool:

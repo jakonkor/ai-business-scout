@@ -42,6 +42,7 @@ Thumbs.db
 data/*.json
 data/*.csv
 logs/
+!logs/.gitkeep
 *.log
 
 # API keys and secrets

@@ -1,0 +1,18 @@
+# Minimal requirements for public API version
+python-dotenv>=1.0.0
+pydantic>=2.5.0
+
+# GitHub Models API (uses OpenAI SDK)
+openai>=1.12.0
+
+# Public data sources
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+pytrends>=4.9.0
+
+# Utilities
+rich>=13.7.0
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
